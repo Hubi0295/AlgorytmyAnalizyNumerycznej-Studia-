@@ -6,7 +6,7 @@ def wypelnianieListy(n,tabx,taby,tabPom):
         tabx.append(float(input("Podaj x: ")))
         i=i+1
     while j<n:
-        taby.append(float(input("Podaj y"+str(j)+": ")))
+        taby.append(float(input("Podaj y: ")))
         j=j+1
     i=0
     while i<n:
