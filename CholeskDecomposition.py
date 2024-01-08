@@ -1,5 +1,6 @@
 import math
 import numpy
+
 def MDM3(x,tabM,tabD,tabY):
     tabM = numpy.transpose(tabM)
     tabD = numpy.linalg.inv(tabD)
