@@ -1,0 +1,108 @@
+import itertools
+
+
+def held_karp(dists):
+    n = len(dists)
+
+    # Maps each subset of the nodes to the cost to reach that subset, as well
+    # as what node it passed before reaching this subset.
+    # Node subsets are represented as set bits.
+    C = {}
+
+    # Set transition cost from initial state
+    for k in range(1, n):
+        C[(1 << k, k)] = (dists[0][k], 0)
+
+    # Iterate subsets of increasing length and store intermediate results
+    # in classic dynamic programming manner
+    for subset_size in range(2, n):
+        for subset in itertools.combinations(range(1, n), subset_size):
+            # Set bits for all nodes in this subset
+            bits = 0
+            for bit in subset:
+                bits |= 1 << bit
+
+            # Find the lowest cost to get to this subset
+            for k in subset:
+                prev = bits & ~(1 << k)
+
+                res = []
+                for m in subset:
+                    if m == 0 or m == k:
+                        continue
+                    res.append((C[(prev, m)][0] + dists[m][k], m))
+                C[(bits, k)] = min(res)
+
+    # We're interested in all bits but the least significant (the start state)
+    bits = (2**n - 1) - 1
+
+    # Calculate optimal cost
+    res = []
+    for k in range(1, n):
+        res.append((C[(bits, k)][0] + dists[k][0], k))
+    opt, parent = min(res)
+
+    # Backtrack to find full path
+    path = []
+    for i in range(n - 1):
+        path.append(parent)
+        new_bits = bits & ~(1 << parent)
+        _, parent = C[(bits, parent)]
+        bits = new_bits
+
+    # Add implicit start state
+    path.append(0)
+
+    return opt, list(reversed(path))
+def main():
+    m={
+        "Warszawa": 1,
+        "Olsztyn": 2,
+        "Białystok": 3,
+        "Lublin": 4,
+        "Bydgoszcz": 5,
+        "Gdańsk": 6,
+        "Łódź": 7,
+        "Poznań": 8,
+        "Szczecin": 9,
+        "GorzówWielkopolski": 10,
+        "Wrocław": 11,
+        "Opole": 12,
+        "Katowice": 13,
+        "Kielce": 14,
+        "Kraków": 15,
+        "Rzeszów": 16
+    }
+    miasta = open("miasta.txt","r",encoding="utf-8")
+    tablica=[]
+    for line in miasta:
+        p=line.split(sep="\n")
+        p=line.split()
+        tablica.append(p[0:3])
+    print(tablica)
+    dic={}
+    for x in tablica:
+        if m.get(x[0]) not in dic:
+            dic[m.get(x[0])] = {}
+        dic[m.get(x[0])][m.get(x[1])] = int(x[2])
+
+        if m.get(x[1]) not in dic:
+            dic[m.get(x[1])] = {}
+        dic[m.get(x[1])][m.get(x[0])] = int(x[2])
+    print(dic)
+    matrix = [[0 for _ in range(16)] for _ in range(16)]
+    for i in range(1,17):
+        for j in range(1,17):
+            if i==j:
+                matrix[i-1][j-1]=0
+                continue
+            matrix[i-1][j-1]=dic.get(i).get(j)
+        for j in range(1,17):
+            if i==j:
+                matrix[i-1][j-1]=0
+                continue
+            matrix[j-1][i-1]=dic.get(i).get(j)
+    print(held_karp(matrix))
+if __name__ == '__main__':
+    main()
+
